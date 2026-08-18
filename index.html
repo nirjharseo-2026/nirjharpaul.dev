@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nirjhar Paul — Brand & Product Designer Portfolio</title>
+  <meta name="description"
+    content="Portfolio of Nirjhar Paul, a Senior Brand & Product Designer focused on creating human-centered brand experiences and digital products.">
+
+  <!-- CSS Stylesheet -->
+  <link rel="stylesheet" href="/src/style.css">
+</head>
+
+<body>
+
+  <!-- Custom Cursor Elements -->
+  <div class="custom-cursor" id="cursor"></div>
+  <div class="custom-cursor-follower" id="cursorFollower"></div>
+
+  <!-- Loading Screen -->
+  <div class="loader-screen" id="loaderScreen">
+    <div class="loader-logo">N Paul<span class="logo-dot"></span></div>
+    <div class="loader-bar-bg">
+      <div class="loader-bar-fill" id="loaderBar"></div>
+    </div>
+    <div class="loader-status" id="loaderText">Loading Frames 0%</div>
+  </div>
+
+  <!-- Navigation Header -->
+  <header class="navbar" id="navbar">
+    <div class="container nav-container">
+      <a href="#" class="logo">
+        N Paul<span class="logo-dot"></span>
+      </a>
+
+      <ul class="nav-links">
+        <li><a href="#hero" class="active">Home</a></li>
+        <li><a href="#services">Services</a></li>
+        <li><a href="#capabilities">Capabilities</a></li>
+      </ul>
+
+      <div class="nav-right">
+        <button class="btn btn-primary open-modal-btn nav-desktop-cta">
+          Get in Touch
+          <span class="btn-icon-badge">↗</span>
+        </button>
+
+        <!-- Mobile Menu Toggle Button -->
+        <button class="nav-toggle-btn" id="navToggleBtn" aria-label="Toggle Menu">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Mobile Navigation Drawer Overlay -->
+    <div class="mobile-nav-overlay" id="mobileNav">
+      <ul class="mobile-nav-links">
+        <li><a href="#hero" class="mobile-nav-link active">Home</a></li>
+        <li><a href="#services" class="mobile-nav-link">Services</a></li>
+        <li><a href="#capabilities" class="mobile-nav-link">Capabilities</a></li>
+      </ul>
+      <button class="btn btn-accent open-modal-btn mobile-cta-btn" style="width: 100%; justify-content: center; margin-top: 24px;">
+        Get in Touch
+        <span class="btn-icon-badge">↗</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Content Wrapper -->
+  <main>
+    <!-- Hero Section -->
+    <section class="container hero-wrapper" id="hero">
+      <div class="hero-card">
+        <!-- Interactive 240FPS Canvas -->
+        <div class="canvas-container">
+          <canvas id="heroCanvas"></canvas>
+          <div class="hero-overlay-gradient"></div>
+        </div>
+
+        <!-- Overlaid Content -->
+        <div class="hero-content">
+          <div class="hero-top">
+            <div class="hero-title-group">
+              <span class="hero-subtitle">Hey, I'm</span>
+              <h1 class="hero-h1">Nirjhar<br>Paul</h1>
+              <p class="hero-tagline">Creative Web designer and developer</p>
+            </div>
+
+            <div class="hero-quote-card">
+              <h3 class="hero-quote-title">Great design should feel invisible.</h3>
+              <p class="hero-quote-text">That's why I create simple, touch-driven & human-centered brand experiences.
+              </p>
+            </div>
+          </div>
+
+          <!-- Bottom Pill Stats/Services -->
+          <div class="hero-bottom-bar">
+            <div class="pill-card">
+              <span class="pill-num">01</span>
+              <span class="pill-text">Brand Strategy</span>
+            </div>
+            <div class="pill-card">
+              <span class="pill-num">02</span>
+              <span class="pill-text">Brand Identity Design</span>
+            </div>
+            <div class="pill-card">
+              <span class="pill-num">03</span>
+              <span class="pill-text">Packaging Design</span>
+            </div>
+            <div class="pill-card">
+              <span class="pill-num">04</span>
+              <span class="pill-text">Visual Systems</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Scroll Down Indicator -->
+        <div class="scroll-indicator">
+          <div class="mouse-icon">
+            <div class="mouse-dot"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Brand Logotypes Ticker Marquee -->
+    <section class="marquee-section">
+      <div class="marquee-label">Trusted by top brands for exceptional design</div>
+      <div class="marquee-container">
+        <div class="marquee-content">
+          <div class="brand-logo-item"><span class="brand-icon">❖</span> HyperBox</div>
+          <div class="brand-logo-item"><span class="brand-icon">◬</span> EffectBox</div>
+          <div class="brand-logo-item"><span class="brand-icon">◰</span> FrameBox</div>
+          <div class="brand-logo-item"><span class="brand-icon">◲</span> ShipBox</div>
+          <div class="brand-logo-item"><span class="brand-icon">◱</span> TapeBox</div>
+          <div class="brand-logo-item"><span class="brand-icon">◈</span> NextBox</div>
+          <div class="brand-logo-item"><span class="brand-icon">⬡</span> CraftBox</div>
+
+          <!-- Duplicate for continuous scroll loop -->
+          <div class="brand-logo-item"><span class="brand-icon">❖</span> HyperBox</div>
+          <div class="brand-logo-item"><span class="brand-icon">◬</span> EffectBox</div>
+          <div class="brand-logo-item"><span class="brand-icon">◰</span> FrameBox</div>
+          <div class="brand-logo-item"><span class="brand-icon">◲</span> ShipBox</div>
+          <div class="brand-logo-item"><span class="brand-icon">◱</span> TapeBox</div>
+          <div class="brand-logo-item"><span class="brand-icon">◈</span> NextBox</div>
+          <div class="brand-logo-item"><span class="brand-icon">⬡</span> CraftBox</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- My Services Section -->
+    <section class="container section" id="services">
+      <div class="section-header">
+        <div>
+          <span class="section-tag">My Services</span>
+          <h2 class="section-title">Creative Services That Elevate Your Brand</h2>
+        </div>
+        <div class="section-header-right">
+          <p class="section-desc">
+            Offering end-to-end web design, brand identity systems, 3D packaging mockups, and digital product experiences tailored to drive real growth.
+          </p>
+          <button class="btn btn-accent open-modal-btn">
+            Get in Touch
+            <span class="btn-icon-badge">↗</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- 3 Service Showcase Cards Grid -->
+      <div class="projects-grid">
+        <!-- Service Card 1: Creative Web Design -->
+        <div class="project-card">
+          <div class="project-img-wrapper">
+            <span class="project-badge">Service 01 / Design & UI/UX</span>
+            <img src="/images/service_web_design.jpg" alt="Creative Web Design" class="project-img">
+          </div>
+          <div class="project-details">
+            <h3 class="project-title">Creative Web Design</h3>
+            <p class="project-category">Bespoke UI/UX design, interactive prototyping & high-impact visual design systems.</p>
+          </div>
+        </div>
+
+        <!-- Service Card 2: Web Development -->
+        <div class="project-card">
+          <div class="project-img-wrapper">
+            <span class="project-badge">Service 02 / Engineering & Code</span>
+            <img src="/images/service_web_dev.jpg" alt="Web Development" class="project-img">
+          </div>
+          <div class="project-details">
+            <h3 class="project-title">Web Development</h3>
+            <p class="project-category">Fluid motion web applications, high-performance 60fps canvas & modern tech stack.</p>
+          </div>
+        </div>
+
+        <!-- Service Card 3: AI Automation and Workflow -->
+        <div class="project-card">
+          <div class="project-img-wrapper">
+            <span class="project-badge">Service 03 / AI & Automation</span>
+            <img src="/images/service_ai_workflow.jpg" alt="AI Automation and Workflow" class="project-img">
+          </div>
+          <div class="project-details">
+            <h3 class="project-title">AI Automation & Workflow</h3>
+            <p class="project-category">Custom AI agent integration, automated business workflows & process orchestration.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Capabilities & Stats Section -->
+    <section class="container section" id="capabilities">
+      <div class="capabilities-wrapper">
+        <span class="section-tag">Core Capabilities</span>
+        <h2 class="section-title" style="margin-bottom: 24px;">Transforming Vision Into Tangible Products</h2>
+        <p class="section-desc" style="max-width: 700px;">
+          Combining strategic brand thinking with meticulous visual execution to deliver award-winning digital
+          experiences.
+        </p>
+
+        <div class="stats-grid">
+          <div class="stat-item">
+            <div class="stat-number">08<span>+</span></div>
+            <div class="stat-label">Years of Design Experience</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-number">120<span>+</span></div>
+            <div class="stat-label">Projects Completed</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-number">99<span>%</span></div>
+            <div class="stat-label">Client Satisfaction Rate</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-number">14<span>x</span></div>
+            <div class="stat-label">Design Industry Awards</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="container">
+      <div class="cta-banner">
+        <h2 class="cta-title">Ready to Elevate Your Brand?</h2>
+        <p class="cta-subtitle">Let's collaborate to build an unforgettable visual identity and digital product
+          experience.</p>
+        <button class="btn btn-accent open-modal-btn" style="font-size: 16px; padding: 14px 32px;">
+          Start a Project Together
+          <span class="btn-icon-badge">↗</span>
+        </button>
+      </div>
+    </section>
+  </main>
+
+  <!-- Contact Modal -->
+  <div class="modal-overlay" id="contactModal">
+    <div class="modal-card">
+      <button class="modal-close-btn" id="modalClose">✕</button>
+      <h3 class="modal-title">Let's Work Together</h3>
+      <p class="modal-subtitle">Fill out the form below and I'll respond within 24 hours.</p>
+
+      <form id="contactForm">
+        <div class="form-group">
+          <label class="form-label" for="userName">Your Name</label>
+          <input type="text" id="userName" class="form-input" placeholder="e.g. Alex Morgan" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="userEmail">Email Address</label>
+          <input type="email" id="userEmail" class="form-input" placeholder="alex@company.com" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="userMessage">Project Overview</label>
+          <textarea id="userMessage" class="form-textarea"
+            placeholder="Tell me about your goals, timeline, and budget..." required></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-accent" style="width: 100%; justify-content: center; padding: 14px;">
+          Send Message ↗
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container footer-content">
+      <div>© 2026 N Paul. Designed with fluid motion. All rights reserved.</div>
+      <ul class="social-links">
+        <li><a href="#">Twitter/X</a></li>
+        <li><a href="#">LinkedIn</a></li>
+        <li><a href="#">Dribbble</a></li>
+        <li><a href="#">Instagram</a></li>
+      </ul>
+    </div>
+  </footer>
+
+  <!-- Application Logic -->
+  <script type="module" src="/src/main.js"></script>
+</body>
+
+</html>
