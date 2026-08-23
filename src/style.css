@@ -332,25 +332,15 @@ body.hovering-interactive .custom-cursor-follower {
   margin-bottom: 60px;
 }
 
-.hero-card {
-  position: relative;
-  width: 100%;
-  height: 85vh;
-  min-height: 600px;
-  max-height: 850px;
-  border-radius: var(--radius-lg);
-  overflow: hidden;
-  background: #000;
-  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.8), 0 0 0 1px var(--border-light);
-}
-
-/* Canvas Animation Container */
-.canvas-container {
-  position: absolute;
+/* Fixed Cinematic Full-Viewport Canvas Backdrop */
+.fixed-canvas-backdrop {
+  position: fixed;
   inset: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 1;
+  width: 100vw;
+  height: 100vh;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
 }
 
 #heroCanvas {
@@ -360,15 +350,35 @@ body.hovering-interactive .custom-cursor-follower {
   display: block;
 }
 
-/* Canvas Overlay Gradient */
 .hero-overlay-gradient {
   position: absolute;
   inset: 0;
-  z-index: 2;
+  z-index: 1;
   background: 
-    linear-gradient(180deg, rgba(10, 11, 14, 0.6) 0%, rgba(10, 11, 14, 0.1) 40%, rgba(10, 11, 14, 0.85) 100%),
-    radial-gradient(circle at 15% 30%, rgba(255, 94, 43, 0.15) 0%, transparent 50%);
+    radial-gradient(circle at 50% 30%, rgba(10, 11, 14, 0.2) 0%, rgba(10, 11, 14, 0.75) 80%, rgba(10, 11, 14, 0.95) 100%),
+    radial-gradient(circle at 15% 30%, rgba(255, 94, 43, 0.18) 0%, transparent 50%);
   pointer-events: none;
+}
+
+/* Page Layering above Canvas Backdrop */
+main, header, footer, .marquee-section {
+  position: relative;
+  z-index: 2;
+}
+
+.hero-card {
+  position: relative;
+  width: 100%;
+  height: 85vh;
+  min-height: 600px;
+  max-height: 850px;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: rgba(14, 16, 22, 0.35);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5), 0 0 0 1px var(--border-light);
 }
 
 /* Hero Content Grid */
@@ -642,7 +652,9 @@ body.hovering-interactive .custom-cursor-follower {
 }
 
 .project-card {
-  background: var(--bg-secondary);
+  background: rgba(18, 19, 26, 0.7);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   border-radius: var(--radius-md);
   overflow: hidden;
   border: 1px solid var(--border-light);
@@ -718,11 +730,26 @@ body.hovering-interactive .custom-cursor-follower {
 
 /* Capabilities & Stats Section */
 .capabilities-wrapper {
-  background: var(--bg-secondary);
+  background: rgba(18, 19, 26, 0.7);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   border-radius: var(--radius-lg);
   padding: 64px 48px;
   border: 1px solid var(--border-light);
   margin: 40px 0;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+}
+
+/* Scroll-Triggered Reveal Animations */
+.reveal-on-scroll {
+  opacity: 0;
+  transform: translateY(35px);
+  transition: opacity 0.8s var(--ease-out-expo), transform 0.8s var(--ease-out-expo);
+}
+
+.reveal-visible {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .stats-grid {

@@ -67,20 +67,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   );
 
-  // 2. Scroll-Linked Frame Scrubbing Engine
-  const heroCard = document.querySelector('.hero-card');
-
+  // 2. Full-Page Cinematic Frame Scrubbing Engine
   function updateScrollProgress() {
-    if (!heroCard) return;
-
     const scrollTop = window.scrollY || document.documentElement.scrollTop;
-    const heroHeight = heroCard.offsetHeight;
-    const windowHeight = window.innerHeight;
-
-    // Calculate how far down the hero card has been scrolled through
-    // Start scrubbing from top of hero (0) to when hero bottom leaves viewport
-    const totalDistance = heroHeight + windowHeight;
-    const progressRatio = Math.max(0, Math.min(1, scrollTop / (heroHeight * 1.2)));
+    const maxScrollable = document.documentElement.scrollHeight - window.innerHeight;
+    
+    // Scrub 240-frame 3D fluid movement animation smoothly from 0% to 100% across the full page height
+    const progressRatio = maxScrollable > 0 ? Math.max(0, Math.min(1, scrollTop / maxScrollable)) : 0;
 
     // Drive canvas animation engine target frame
     animationEngine.setTargetProgress(progressRatio);
@@ -116,6 +109,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
   window.addEventListener('scroll', updateScrollProgress, { passive: true });
   updateScrollProgress(); // Initial check
+
+  // 3. Scroll Reveal Observer for Cinematic Section Entrance
+  const revealElements = document.querySelectorAll('.project-card, .capabilities-wrapper, .cta-banner, .stat-item');
+  revealElements.forEach(el => el.classList.add('reveal-on-scroll'));
+
+  const revealObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('reveal-visible');
+      }
+    });
+  }, { threshold: 0.12 });
+
+  revealElements.forEach(el => revealObserver.observe(el));
 
   // 3. Custom Cursor Follower Engine
   let mouseX = 0, mouseY = 0;
