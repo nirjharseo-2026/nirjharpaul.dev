@@ -49,6 +49,7 @@
 
 html {
   scroll-behavior: smooth;
+  scroll-padding-top: 85px;
   color-scheme: dark;
   background-color: var(--bg-primary);
   font-family: var(--font-sans);
@@ -1079,6 +1080,12 @@ body.hovering-interactive .custom-cursor-follower {
 
   .hero-content {
     padding: 24px 20px;
+  }
+
+  .hero-top {
+    flex-direction: column;
+    gap: 16px;
+    align-items: stretch;
   }
 
   .hero-h1 {

@@ -62,9 +62,10 @@ export class CanvasAnimationEngine {
   }
 
   handleResize() {
-    const rect = this.canvas.parentElement.getBoundingClientRect();
-    this.width = rect.width;
-    this.height = rect.height;
+    const parent = this.canvas.parentElement;
+    const rect = parent ? parent.getBoundingClientRect() : { width: window.innerWidth, height: window.innerHeight };
+    this.width = rect.width || window.innerWidth;
+    this.height = rect.height || window.innerHeight;
 
     this.dpr = Math.min(window.devicePixelRatio || 1, 2); // Cap at 2 for performance
     this.canvas.width = this.width * this.dpr;
@@ -80,32 +81,32 @@ export class CanvasAnimationEngine {
     this.onProgress = onProgress;
     this.onLoaded = onLoaded;
 
-    const firstBatchCount = 20;
+    const handleFrameComplete = () => {
+      this.loadedCount++;
+      const progress = Math.min(Math.round((this.loadedCount / this.totalFrames) * 100), 100);
 
-    // Load first batch with high priority
+      if (this.onProgress) {
+        this.onProgress(progress, this.loadedCount, this.totalFrames);
+      }
+
+      if (this.loadedCount === 1) {
+        // Draw first frame instantly
+        this.drawFrame(1);
+      }
+
+      if (this.loadedCount === this.totalFrames) {
+        this.isLoaded = true;
+        if (this.onLoaded) this.onLoaded();
+      }
+    };
+
     for (let i = 1; i <= this.totalFrames; i++) {
       const img = new Image();
       const frameIndexString = String(i).padStart(5, '0');
       img.src = this.framePathPattern.replace('{index}', frameIndexString);
 
-      img.onload = () => {
-        this.loadedCount++;
-        const progress = Math.min(Math.round((this.loadedCount / this.totalFrames) * 100), 100);
-
-        if (this.onProgress) {
-          this.onProgress(progress, this.loadedCount, this.totalFrames);
-        }
-
-        if (this.loadedCount === 1) {
-          // Draw first frame instantly
-          this.drawFrame(1);
-        }
-
-        if (this.loadedCount === this.totalFrames) {
-          this.isLoaded = true;
-          if (this.onLoaded) this.onLoaded();
-        }
-      };
+      img.onload = handleFrameComplete;
+      img.onerror = handleFrameComplete;
 
       this.images.push(img);
     }

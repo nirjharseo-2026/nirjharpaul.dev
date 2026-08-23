@@ -91,6 +91,27 @@ document.addEventListener('DOMContentLoaded', () => {
     } else {
       navbar?.classList.remove('scrolled');
     }
+
+    // Scroll Spy for Navigation Links
+    const sections = document.querySelectorAll('section[id]');
+    let currentSectionId = '';
+    sections.forEach(section => {
+      const sectionTop = section.offsetTop - 120;
+      const sectionHeight = section.offsetHeight;
+      if (scrollTop >= sectionTop && scrollTop < sectionTop + sectionHeight) {
+        currentSectionId = section.getAttribute('id');
+      }
+    });
+
+    if (currentSectionId) {
+      const desktopNavLinks = document.querySelectorAll('.nav-links a');
+      desktopNavLinks.forEach(link => {
+        link.classList.toggle('active', link.getAttribute('href') === `#${currentSectionId}`);
+      });
+      mobileNavLinks.forEach(link => {
+        link.classList.toggle('active', link.getAttribute('href') === `#${currentSectionId}`);
+      });
+    }
   }
 
   window.addEventListener('scroll', updateScrollProgress, { passive: true });
