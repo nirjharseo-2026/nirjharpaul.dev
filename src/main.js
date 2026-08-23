@@ -124,13 +124,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
   revealElements.forEach(el => revealObserver.observe(el));
 
-  // 3. Custom Cursor Follower Engine
+  // 4. Custom Cursor Follower Engine with Event Delegation
   let mouseX = 0, mouseY = 0;
   let followerX = 0, followerY = 0;
+  let hasMovedMouse = false;
 
   window.addEventListener('mousemove', (e) => {
     mouseX = e.clientX;
     mouseY = e.clientY;
+
+    if (!hasMovedMouse) {
+      hasMovedMouse = true;
+      if (cursorDot) cursorDot.style.opacity = '1';
+      if (cursorFollower) cursorFollower.style.opacity = '1';
+    }
 
     if (cursorDot) {
       cursorDot.style.left = `${mouseX}px`;
@@ -151,17 +158,26 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   animateCursor();
 
-  // Add cursor hover scaling for interactive elements
-  const interactables = document.querySelectorAll('a, button, .project-card, .pill-card, input, textarea');
-  interactables.forEach(item => {
-    item.addEventListener('mouseenter', () => document.body.classList.add('hovering-interactive'));
-    item.addEventListener('mouseleave', () => document.body.classList.remove('hovering-interactive'));
+  // Hover scaling using event delegation
+  document.body.addEventListener('mouseover', (e) => {
+    if (e.target.closest('a, button, .project-card, .pill-card, input, textarea')) {
+      document.body.classList.add('hovering-interactive');
+    }
   });
 
-  // 4. Contact Modal Logic
+  document.body.addEventListener('mouseout', (e) => {
+    if (e.target.closest('a, button, .project-card, .pill-card, input, textarea')) {
+      document.body.classList.remove('hovering-interactive');
+    }
+  });
+
+  // 5. Contact Modal Logic & Keyboard Accessibility
   openModalBtns.forEach(btn => {
     btn.addEventListener('click', (e) => {
       e.preventDefault();
+      navToggleBtn?.classList.remove('active');
+      mobileNav?.classList.remove('active');
+      document.body.style.overflow = '';
       contactModal?.classList.add('active');
     });
   });
@@ -180,10 +196,15 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && contactModal?.classList.contains('active')) {
+      contactModal.classList.remove('active');
+    }
+  });
+
   if (contactForm) {
     contactForm.addEventListener('submit', (e) => {
       e.preventDefault();
-      const nameInput = document.getElementById('userName');
       const submitBtn = contactForm.querySelector('button[type="submit"]');
 
       if (submitBtn) {
