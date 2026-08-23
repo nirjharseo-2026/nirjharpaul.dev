@@ -118,6 +118,7 @@ document.addEventListener('DOMContentLoaded', () => {
     entries.forEach(entry => {
       if (entry.isIntersecting) {
         entry.target.classList.add('reveal-visible');
+        revealObserver.unobserve(entry.target);
       }
     });
   }, { threshold: 0.12 });
