@@ -1203,3 +1203,41 @@ main, header, footer, .marquee-section {
   }
 }
 
+/* ==========================================================================
+   HARDWARE ACCELERATION & MOBILE RENDERING PERFORMANCE OPTIMIZATIONS
+   ========================================================================== */
+.fixed-canvas-backdrop,
+#heroCanvas {
+  will-change: transform;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  pointer-events: none;
+}
+
+.section,
+.projects-grid,
+.capabilities-wrapper,
+.cta-banner {
+  content-visibility: auto;
+  contain-intrinsic-size: 1px 600px;
+}
+
+/* Mobile & Touch Hardware Optimization */
+@media (max-width: 768px), (pointer: coarse) {
+  .custom-cursor,
+  .custom-cursor-follower {
+    display: none !important;
+  }
+
+  body {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .project-card,
+  .pill-card,
+  .btn {
+    will-change: auto;
+  }
+}
+
+

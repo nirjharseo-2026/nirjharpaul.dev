@@ -1,0 +1,4 @@
+node_modules
+dist
+.vercel
+optimize_images.js

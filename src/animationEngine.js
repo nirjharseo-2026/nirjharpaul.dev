@@ -1,5 +1,5 @@
 /* ==========================================================================
-   ULTRA-SMOOTH CANVAS FRAME ANIMATION ENGINE (240 FPS SEQUENCE)
+   HIGH-PERFORMANCE ADAPTIVE CANVAS ANIMATION ENGINE (MOBILE & DESKTOP)
    ========================================================================== */
 
 export class CanvasAnimationEngine {
@@ -9,14 +9,21 @@ export class CanvasAnimationEngine {
     this.totalFrames = totalFrames;
     this.framePathPattern = framePathPattern;
 
-    this.images = [];
+    // Device detection & adaptive loading parameters
+    this.isMobile = typeof window !== 'undefined' && (window.innerWidth < 768 || 'ontouchstart' in window || navigator.maxTouchPoints > 0);
+    // On mobile, load every 3rd frame (80 frames total = ~2.4MB payload vs 67MB)
+    // On desktop, load keyframes (every 2nd frame) first, then backfill remaining
+    this.frameStep = this.isMobile ? 3 : 2;
+
+    this.images = new Array(this.totalFrames);
+    this.loadedFramesMap = new Map(); // Index -> HTMLImageElement
     this.loadedCount = 0;
     this.isLoaded = false;
 
     // Animation state
     this.currentFrame = 1;
     this.targetFrame = 1;
-    this.lerpFactor = 0.12; // Smooth inertia factor
+    this.lerpFactor = this.isMobile ? 0.18 : 0.12; // Snappier on touch devices
     this.idleTime = 0;
     this.isScrolling = false;
     this.scrollTimeout = null;
@@ -30,7 +37,7 @@ export class CanvasAnimationEngine {
     // Canvas sizing
     this.width = 0;
     this.height = 0;
-    this.dpr = window.devicePixelRatio || 1;
+    this.dpr = 1;
 
     // Callbacks
     this.onProgress = null;
@@ -41,21 +48,15 @@ export class CanvasAnimationEngine {
 
   init() {
     this.handleResize();
-    window.addEventListener('resize', () => this.handleResize());
-    
-    // Track mouse movement over window for subtle parallax
-    window.addEventListener('mousemove', (e) => {
-      this.targetMouseX = (e.clientX / window.innerWidth - 0.5) * 15;
-      this.targetMouseY = (e.clientY / window.innerHeight - 0.5) * 15;
-    });
+    window.addEventListener('resize', () => this.handleResize(), { passive: true });
 
-    // Touch movement tracking for mobile devices
-    window.addEventListener('touchmove', (e) => {
-      if (e.touches && e.touches[0]) {
-        this.targetMouseX = (e.touches[0].clientX / window.innerWidth - 0.5) * 10;
-        this.targetMouseY = (e.touches[0].clientY / window.innerHeight - 0.5) * 10;
-      }
-    }, { passive: true });
+    // Track mouse movement only if desktop pointer
+    if (!this.isMobile) {
+      window.addEventListener('mousemove', (e) => {
+        this.targetMouseX = (e.clientX / window.innerWidth - 0.5) * 15;
+        this.targetMouseY = (e.clientY / window.innerHeight - 0.5) * 15;
+      }, { passive: true });
+    }
 
     // Start RAF render loop
     this.renderLoop();
@@ -67,103 +68,185 @@ export class CanvasAnimationEngine {
     this.width = rect.width || window.innerWidth;
     this.height = rect.height || window.innerHeight;
 
-    this.dpr = Math.min(window.devicePixelRatio || 1, 2); // Cap at 2 for performance
-    this.canvas.width = this.width * this.dpr;
-    this.canvas.height = this.height * this.dpr;
+    // Cap DPR at 1.5 on mobile for GPU fill-rate efficiency, 2 on desktop
+    this.dpr = Math.min(window.devicePixelRatio || 1, this.isMobile ? 1.5 : 2);
+    this.canvas.width = Math.floor(this.width * this.dpr);
+    this.canvas.height = Math.floor(this.height * this.dpr);
 
     // Redraw current frame
-    if (this.images[Math.round(this.currentFrame) - 1]?.complete) {
-      this.drawFrame(Math.round(this.currentFrame));
-    }
+    this.drawFrame(Math.round(this.currentFrame));
   }
 
   loadFrames(onProgress, onLoaded) {
     this.onProgress = onProgress;
     this.onLoaded = onLoaded;
 
-    const handleFrameComplete = () => {
+    // 1. Instantly load Frame 1 first for zero delay
+    const firstImg = new Image();
+    firstImg.fetchPriority = 'high';
+    const firstFrameStr = String(1).padStart(5, '0');
+    firstImg.src = this.framePathPattern.replace('{index}', firstFrameStr);
+    firstImg.onload = () => {
+      this.images[0] = firstImg;
+      this.loadedFramesMap.set(1, firstImg);
       this.loadedCount++;
-      const progress = Math.min(Math.round((this.loadedCount / this.totalFrames) * 100), 100);
-
-      if (this.onProgress) {
-        this.onProgress(progress, this.loadedCount, this.totalFrames);
-      }
-
-      if (this.loadedCount === 1) {
-        // Draw first frame instantly
-        this.drawFrame(1);
-      }
-
-      if (this.loadedCount === this.totalFrames) {
-        this.isLoaded = true;
-        if (this.onLoaded) this.onLoaded();
-      }
+      this.drawFrame(1);
+      if (this.onProgress) this.onProgress(10, 1, this.totalFrames);
+      
+      // Start batch loading remaining frames
+      this.startBatchLoading();
     };
+    firstImg.onerror = () => {
+      this.startBatchLoading();
+    };
+  }
+
+  startBatchLoading() {
+    // Collect frame indices to load based on frameStep
+    const primaryIndices = [];
+    const secondaryIndices = [];
 
     for (let i = 1; i <= this.totalFrames; i++) {
-      const img = new Image();
-      const frameIndexString = String(i).padStart(5, '0');
-      img.src = this.framePathPattern.replace('{index}', frameIndexString);
-
-      img.onload = handleFrameComplete;
-      img.onerror = handleFrameComplete;
-
-      this.images.push(img);
+      if (i === 1) continue; // Already loaded
+      if ((i - 1) % this.frameStep === 0 || i === this.totalFrames) {
+        primaryIndices.push(i);
+      } else {
+        secondaryIndices.push(i);
+      }
     }
+
+    const totalToLoad = primaryIndices.length + (this.isMobile ? 0 : secondaryIndices.length);
+
+    const loadSingleFrame = (index, callback) => {
+      const img = new Image();
+      img.decoding = 'async';
+      const frameStr = String(index).padStart(5, '0');
+      img.src = this.framePathPattern.replace('{index}', frameStr);
+
+      img.onload = () => {
+        this.images[index - 1] = img;
+        this.loadedFramesMap.set(index, img);
+        this.loadedCount++;
+
+        const progress = Math.min(Math.round((this.loadedCount / totalToLoad) * 100), 100);
+        if (this.onProgress) {
+          this.onProgress(progress, this.loadedCount, totalToLoad);
+        }
+
+        if (this.loadedCount >= totalToLoad) {
+          this.isLoaded = true;
+          if (this.onLoaded) this.onLoaded();
+        }
+        if (callback) callback();
+      };
+
+      img.onerror = () => {
+        this.loadedCount++;
+        if (callback) callback();
+      };
+    };
+
+    // Staggered batch loading (5 images per batch) to prevent network thread lock
+    let batchIndex = 0;
+    const processBatch = (indicesList, onComplete) => {
+      if (batchIndex >= indicesList.length) {
+        if (onComplete) onComplete();
+        return;
+      }
+
+      const batch = indicesList.slice(batchIndex, batchIndex + 6);
+      batchIndex += 6;
+      let completedInBatch = 0;
+
+      batch.forEach(idx => {
+        loadSingleFrame(idx, () => {
+          completedInBatch++;
+          if (completedInBatch === batch.length) {
+            // Process next batch after small macro-task delay
+            if (window.requestIdleCallback) {
+              window.requestIdleCallback(() => processBatch(indicesList, onComplete));
+            } else {
+              setTimeout(() => processBatch(indicesList, onComplete), 10);
+            }
+          }
+        });
+      });
+    };
+
+    // Process primary keyframes first
+    processBatch(primaryIndices, () => {
+      // If desktop and secondary frames exist, load them in background idle time
+      if (!this.isMobile && secondaryIndices.length > 0) {
+        batchIndex = 0;
+        processBatch(secondaryIndices, null);
+      }
+    });
   }
 
   setTargetProgress(progressRatio) {
-    // Clamp progress between 0 and 1
     const clampedRatio = Math.max(0, Math.min(1, progressRatio));
-    // Calculate target frame (1 to totalFrames)
     this.targetFrame = Math.max(1, Math.min(this.totalFrames, 1 + clampedRatio * (this.totalFrames - 1)));
 
     this.isScrolling = true;
     clearTimeout(this.scrollTimeout);
     this.scrollTimeout = setTimeout(() => {
       this.isScrolling = false;
-    }, 200);
+    }, 150);
   }
 
   renderLoop() {
-    // Lerp currentFrame towards targetFrame for butter-smooth animation
     const delta = this.targetFrame - this.currentFrame;
     this.currentFrame += delta * this.lerpFactor;
 
-    // Smooth mouse parallax lerp
-    this.mouseX += (this.targetMouseX - this.mouseX) * 0.05;
-    this.mouseY += (this.targetMouseY - this.mouseY) * 0.05;
-
-    // Idle micro animation when user is stationary
-    if (!this.isScrolling && Math.abs(delta) < 0.1) {
-      this.idleTime += 0.02;
-      // Oscillate frame subtly (+/- 0.8 frames) to simulate lifelike breathing
-      this.currentFrame += Math.sin(this.idleTime) * 0.05;
+    if (!this.isMobile) {
+      this.mouseX += (this.targetMouseX - this.mouseX) * 0.05;
+      this.mouseY += (this.targetMouseY - this.mouseY) * 0.05;
     }
 
-    // Clamp currentFrame
-    this.currentFrame = Math.max(1, Math.min(this.totalFrames, this.currentFrame));
+    if (!this.isScrolling && Math.abs(delta) < 0.1 && !this.isMobile) {
+      this.idleTime += 0.02;
+      this.currentFrame += Math.sin(this.idleTime) * 0.04;
+    }
 
-    // Draw frame
+    this.currentFrame = Math.max(1, Math.min(this.totalFrames, this.currentFrame));
     const frameToDraw = Math.round(this.currentFrame);
     this.drawFrame(frameToDraw);
 
     requestAnimationFrame(() => this.renderLoop());
   }
 
+  getNearestLoadedImage(frameIndex) {
+    if (this.images[frameIndex - 1]?.complete && this.images[frameIndex - 1]?.naturalWidth > 0) {
+      return this.images[frameIndex - 1];
+    }
+
+    // Search outwards from frameIndex to find nearest available frame
+    for (let offset = 1; offset < this.totalFrames; offset++) {
+      const prevIdx = frameIndex - offset;
+      const nextIdx = frameIndex + offset;
+
+      if (prevIdx >= 1 && this.images[prevIdx - 1]?.complete && this.images[prevIdx - 1]?.naturalWidth > 0) {
+        return this.images[prevIdx - 1];
+      }
+      if (nextIdx <= this.totalFrames && this.images[nextIdx - 1]?.complete && this.images[nextIdx - 1]?.naturalWidth > 0) {
+        return this.images[nextIdx - 1];
+      }
+    }
+
+    return null;
+  }
+
   drawFrame(frameIndex) {
-    const img = this.images[frameIndex - 1];
-    if (!img || !img.complete || img.naturalWidth === 0) return;
+    const img = this.getNearestLoadedImage(frameIndex);
+    if (!img) return;
 
     const ctx = this.ctx;
     const cw = this.canvas.width;
     const ch = this.canvas.height;
 
-    ctx.clearRect(0, 0, cw, ch);
-
-    // Cover math: fit 1920x1080 image to canvas container smoothly
-    const imgW = img.naturalWidth;
-    const imgH = img.naturalHeight;
+    // Cover math: fit 1280x720/1920x1080 image to canvas container smoothly
+    const imgW = img.naturalWidth || 1280;
+    const imgH = img.naturalHeight || 720;
     const imgRatio = imgW / imgH;
     const canvasRatio = cw / ch;
 
@@ -181,9 +264,8 @@ export class CanvasAnimationEngine {
       offsetY = 0;
     }
 
-    // Apply mouse parallax displacement offset
-    const parallaxX = this.mouseX * this.dpr;
-    const parallaxY = this.mouseY * this.dpr;
+    const parallaxX = this.isMobile ? 0 : this.mouseX * this.dpr;
+    const parallaxY = this.isMobile ? 0 : this.mouseY * this.dpr;
 
     ctx.drawImage(img, offsetX + parallaxX, offsetY + parallaxY, drawW, drawH);
   }

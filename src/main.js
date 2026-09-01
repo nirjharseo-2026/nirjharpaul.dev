@@ -1,5 +1,5 @@
 /* ==========================================================================
-   MAIN APPLICATION LOGIC & INTERACTION CONTROLLER
+   MAIN APPLICATION LOGIC & INTERACTION CONTROLLER (FAST LOADING OPTIMIZED)
    ========================================================================== */
 
 import { CanvasAnimationEngine } from './animationEngine.js';
@@ -24,6 +24,14 @@ document.addEventListener('DOMContentLoaded', () => {
   const mobileNav = document.getElementById('mobileNav');
   const mobileNavLinks = document.querySelectorAll('.mobile-nav-link');
 
+  const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0 || window.innerWidth < 768;
+
+  // Hide custom cursor elements on touch devices to save mobile CPU
+  if (isTouchDevice) {
+    if (cursorDot) cursorDot.style.display = 'none';
+    if (cursorFollower) cursorFollower.style.display = 'none';
+  }
+
   // Mobile Navigation Drawer Toggle
   if (navToggleBtn && mobileNav) {
     navToggleBtn.addEventListener('click', () => {
@@ -44,42 +52,48 @@ document.addEventListener('DOMContentLoaded', () => {
   // 1. Initialize Canvas Animation Engine
   const animationEngine = new CanvasAnimationEngine(canvasElement, 240, '/frames/frame_{index}.jpg');
 
+  let loaderHidden = false;
+  const hideLoader = () => {
+    if (loaderHidden) return;
+    loaderHidden = true;
+    if (loaderScreen) {
+      loaderScreen.classList.add('fade-out');
+      setTimeout(() => {
+        loaderScreen.style.display = 'none';
+      }, 500);
+    }
+  };
+
   // Preload frames with progress handler
   animationEngine.loadFrames(
     (progress, loadedCount, totalFrames) => {
-      // Update progress bar
       if (loaderBar) loaderBar.style.width = `${progress}%`;
-      if (loaderText) loaderText.textContent = `Loading Frames ${progress}%`;
+      if (loaderText) loaderText.textContent = `Loading ${progress}%`;
 
-      // Hide loader once initial batch (e.g. 15% or 36 frames) is ready for immediate playback
-      if (loadedCount >= 36 && loaderScreen && !loaderScreen.classList.contains('fade-out')) {
-        setTimeout(() => {
-          loaderScreen.classList.add('fade-out');
-        }, 300);
+      // Hide loader instantly when initial frame batch (e.g. 10% progress) is ready
+      if (progress >= 10 || loadedCount >= 5) {
+        hideLoader();
       }
     },
     () => {
-      // All 240 frames fully loaded into memory!
-      console.log('All 240 frames loaded into memory cleanly.');
-      if (loaderScreen && !loaderScreen.classList.contains('fade-out')) {
-        loaderScreen.classList.add('fade-out');
-      }
+      hideLoader();
     }
   );
 
-  // 2. Full-Page Cinematic Frame Scrubbing Engine
+  // Fallback: Ensure loader screen hides after maximum 800ms regardless of connection
+  setTimeout(hideLoader, 800);
+
+  // 2. Full-Page Cinematic Frame Scrubbing Engine (RAF Throttled)
+  let ticking = false;
   function updateScrollProgress() {
     const scrollTop = window.scrollY || document.documentElement.scrollTop;
     const maxScrollable = document.documentElement.scrollHeight - window.innerHeight;
     
-    // Scrub 240-frame 3D fluid movement animation smoothly from 0% to 100% across the full page height
     const progressRatio = maxScrollable > 0 ? Math.max(0, Math.min(1, scrollTop / maxScrollable)) : 0;
-
-    // Drive canvas animation engine target frame
     animationEngine.setTargetProgress(progressRatio);
 
     // Navbar scrolled state toggle
-    if (scrollTop > 50) {
+    if (scrollTop > 40) {
       navbar?.classList.add('scrolled');
     } else {
       navbar?.classList.remove('scrolled');
@@ -105,10 +119,18 @@ document.addEventListener('DOMContentLoaded', () => {
         link.classList.toggle('active', link.getAttribute('href') === `#${currentSectionId}`);
       });
     }
+
+    ticking = false;
   }
 
-  window.addEventListener('scroll', updateScrollProgress, { passive: true });
-  updateScrollProgress(); // Initial check
+  window.addEventListener('scroll', () => {
+    if (!ticking) {
+      requestAnimationFrame(updateScrollProgress);
+      ticking = true;
+    }
+  }, { passive: true });
+
+  updateScrollProgress();
 
   // 3. Scroll Reveal Observer for Cinematic Section Entrance
   const revealElements = document.querySelectorAll('.project-card, .capabilities-wrapper, .cta-banner, .stat-item');
@@ -121,58 +143,59 @@ document.addEventListener('DOMContentLoaded', () => {
         revealObserver.unobserve(entry.target);
       }
     });
-  }, { threshold: 0.12 });
+  }, { threshold: 0.08 });
 
   revealElements.forEach(el => revealObserver.observe(el));
 
-  // 4. Custom Cursor Follower Engine with Event Delegation
-  let mouseX = 0, mouseY = 0;
-  let followerX = 0, followerY = 0;
-  let hasMovedMouse = false;
+  // 4. Custom Cursor Follower (Desktop Only)
+  if (!isTouchDevice) {
+    let mouseX = 0, mouseY = 0;
+    let followerX = 0, followerY = 0;
+    let hasMovedMouse = false;
 
-  window.addEventListener('mousemove', (e) => {
-    mouseX = e.clientX;
-    mouseY = e.clientY;
+    window.addEventListener('mousemove', (e) => {
+      mouseX = e.clientX;
+      mouseY = e.clientY;
 
-    if (!hasMovedMouse) {
-      hasMovedMouse = true;
-      if (cursorDot) cursorDot.style.opacity = '1';
-      if (cursorFollower) cursorFollower.style.opacity = '1';
+      if (!hasMovedMouse) {
+        hasMovedMouse = true;
+        if (cursorDot) cursorDot.style.opacity = '1';
+        if (cursorFollower) cursorFollower.style.opacity = '1';
+      }
+
+      if (cursorDot) {
+        cursorDot.style.left = `${mouseX}px`;
+        cursorDot.style.top = `${mouseY}px`;
+      }
+    }, { passive: true });
+
+    function animateCursor() {
+      followerX += (mouseX - followerX) * 0.15;
+      followerY += (mouseY - followerY) * 0.15;
+
+      if (cursorFollower) {
+        cursorFollower.style.left = `${followerX}px`;
+        cursorFollower.style.top = `${followerY}px`;
+      }
+
+      requestAnimationFrame(animateCursor);
     }
+    animateCursor();
 
-    if (cursorDot) {
-      cursorDot.style.left = `${mouseX}px`;
-      cursorDot.style.top = `${mouseY}px`;
-    }
-  });
+    document.body.addEventListener('mouseover', (e) => {
+      if (e.target.closest('a, button, .project-card, .pill-card, input, textarea')) {
+        document.body.classList.add('hovering-interactive');
+      }
+    }, { passive: true });
 
-  function animateCursor() {
-    followerX += (mouseX - followerX) * 0.15;
-    followerY += (mouseY - followerY) * 0.15;
-
-    if (cursorFollower) {
-      cursorFollower.style.left = `${followerX}px`;
-      cursorFollower.style.top = `${followerY}px`;
-    }
-
-    requestAnimationFrame(animateCursor);
+    document.body.addEventListener('mouseout', (e) => {
+      if (e.target.closest('a, button, .project-card, .pill-card, input, textarea')) {
+        document.body.classList.remove('hovering-interactive');
+      }
+    }, { passive: true });
   }
-  animateCursor();
 
-  // Hover scaling using event delegation
-  document.body.addEventListener('mouseover', (e) => {
-    if (e.target.closest('a, button, .project-card, .pill-card, input, textarea')) {
-      document.body.classList.add('hovering-interactive');
-    }
-  });
-
-  document.body.addEventListener('mouseout', (e) => {
-    if (e.target.closest('a, button, .project-card, .pill-card, input, textarea')) {
-      document.body.classList.remove('hovering-interactive');
-    }
-  });
-
-  // 5. Contact Modal Logic & Keyboard Accessibility
+  // 5. Contact Modal Logic & Accessibility
   openModalBtns.forEach(btn => {
     btn.addEventListener('click', (e) => {
       e.preventDefault();
