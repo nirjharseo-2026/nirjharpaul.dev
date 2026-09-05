@@ -133,7 +133,7 @@ document.addEventListener('DOMContentLoaded', () => {
   updateScrollProgress();
 
   // 3. Scroll Reveal Observer for Cinematic Section Entrance
-  const revealElements = document.querySelectorAll('.project-card, .capabilities-wrapper, .cta-banner, .stat-item');
+  const revealElements = document.querySelectorAll('.project-card, .capabilities-wrapper, .cta-banner, .stat-item, .portfolio-card');
   revealElements.forEach(el => el.classList.add('reveal-on-scroll'));
 
   const revealObserver = new IntersectionObserver((entries) => {
@@ -146,6 +146,28 @@ document.addEventListener('DOMContentLoaded', () => {
   }, { threshold: 0.08 });
 
   revealElements.forEach(el => revealObserver.observe(el));
+
+  // 3b. Interactive Portfolio Filter Logic
+  const filterBtns = document.querySelectorAll('.filter-btn');
+  const portfolioCards = document.querySelectorAll('.portfolio-card');
+
+  filterBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      filterBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+
+      const filterVal = btn.getAttribute('data-filter');
+
+      portfolioCards.forEach(card => {
+        const category = card.getAttribute('data-category');
+        if (filterVal === 'all' || category === filterVal) {
+          card.classList.remove('filtered-out');
+        } else {
+          card.classList.add('filtered-out');
+        }
+      });
+    });
+  });
 
   // 4. Custom Cursor Follower (Desktop Only)
   if (!isTouchDevice) {

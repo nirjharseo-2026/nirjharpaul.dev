@@ -12,8 +12,8 @@
   <link rel="preload" href="/frames/frame_00001.jpg" as="image" fetchpriority="high">
 
   <!-- CSS Stylesheet -->
-  <script type="module" crossorigin src="/assets/index-BjFNqMq5.js"></script>
-  <link rel="stylesheet" crossorigin href="/assets/index-QTFDaJE9.css">
+  <script type="module" crossorigin src="/assets/index-BwHbZr8h.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/index-MD0skJeI.css">
 </head>
 
 <body>
@@ -47,6 +47,7 @@
       <ul class="nav-links">
         <li><a href="#hero" class="active">Home</a></li>
         <li><a href="#services">Services</a></li>
+        <li><a href="#portfolio">Portfolio</a></li>
         <li><a href="#capabilities">Capabilities</a></li>
       </ul>
 
@@ -70,6 +71,7 @@
       <ul class="mobile-nav-links">
         <li><a href="#hero" class="mobile-nav-link active">Home</a></li>
         <li><a href="#services" class="mobile-nav-link">Services</a></li>
+        <li><a href="#portfolio" class="mobile-nav-link">Portfolio</a></li>
         <li><a href="#capabilities" class="mobile-nav-link">Capabilities</a></li>
       </ul>
       <button class="btn btn-accent open-modal-btn mobile-cta-btn" style="width: 100%; justify-content: center; margin-top: 24px;">
@@ -213,6 +215,122 @@
       </div>
     </section>
 
+    <!-- Portfolio / Selected Works Section -->
+    <section class="container section" id="portfolio">
+      <div class="section-header">
+        <div>
+          <span class="section-tag">Selected Works</span>
+          <h2 class="section-title">Crafting Digital Products & Brand Systems</h2>
+        </div>
+        <div class="section-header-right">
+          <p class="section-desc">
+            A curated showcase of recent client projects across fintech dashboards, AI SaaS platforms, luxury brand identities, and high-performance e-commerce experiences.
+          </p>
+          <div class="portfolio-filter-bar">
+            <button class="filter-btn active" data-filter="all">All Projects</button>
+            <button class="filter-btn" data-filter="app">SaaS & Apps</button>
+            <button class="filter-btn" data-filter="web">Web & UI/UX</button>
+            <button class="filter-btn" data-filter="brand">Branding</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Portfolio Grid -->
+      <div class="portfolio-grid">
+        <!-- Portfolio Card 1: Fintech Hub -->
+        <article class="portfolio-card reveal-on-scroll" data-category="app">
+          <div class="portfolio-img-container">
+            <span class="portfolio-category-tag">Fintech / Web App</span>
+            <img src="/images/portfolio_fintech.jpg" alt="Aura Financial Hub" class="portfolio-img" loading="lazy" decoding="async" width="900" height="675">
+            <div class="portfolio-overlay">
+              <span class="portfolio-hover-icon">↗</span>
+            </div>
+          </div>
+          <div class="portfolio-info">
+            <div class="portfolio-header">
+              <h3 class="portfolio-item-title">Aura Financial Hub</h3>
+              <span class="portfolio-year">2026</span>
+            </div>
+            <p class="portfolio-item-desc">Next-generation asset tracking and crypto analytics dashboard built with high-fps responsive charting.</p>
+            <div class="portfolio-tags">
+              <span class="portfolio-tag">Fintech</span>
+              <span class="portfolio-tag">UI/UX Design</span>
+              <span class="portfolio-tag">Dashboard</span>
+            </div>
+          </div>
+        </article>
+
+        <!-- Portfolio Card 2: AI Workflow SaaS -->
+        <article class="portfolio-card reveal-on-scroll" data-category="app">
+          <div class="portfolio-img-container">
+            <span class="portfolio-category-tag">AI SaaS Platform</span>
+            <img src="/images/portfolio_ai_saas.jpg" alt="Synapse AI Automation" class="portfolio-img" loading="lazy" decoding="async" width="900" height="675">
+            <div class="portfolio-overlay">
+              <span class="portfolio-hover-icon">↗</span>
+            </div>
+          </div>
+          <div class="portfolio-info">
+            <div class="portfolio-header">
+              <h3 class="portfolio-item-title">Synapse AI Automation</h3>
+              <span class="portfolio-year">2026</span>
+            </div>
+            <p class="portfolio-item-desc">Intelligent node-based workflow orchestration interface built for enterprise AI prompt management.</p>
+            <div class="portfolio-tags">
+              <span class="portfolio-tag">AI Engine</span>
+              <span class="portfolio-tag">Node Workflow</span>
+              <span class="portfolio-tag">SaaS Design</span>
+            </div>
+          </div>
+        </article>
+
+        <!-- Portfolio Card 3: Brand System -->
+        <article class="portfolio-card reveal-on-scroll" data-category="brand">
+          <div class="portfolio-img-container">
+            <span class="portfolio-category-tag">Brand System</span>
+            <img src="/images/portfolio_brand.jpg" alt="Aurora Luxury Identity" class="portfolio-img" loading="lazy" decoding="async" width="900" height="675">
+            <div class="portfolio-overlay">
+              <span class="portfolio-hover-icon">↗</span>
+            </div>
+          </div>
+          <div class="portfolio-info">
+            <div class="portfolio-header">
+              <h3 class="portfolio-item-title">Aurora Identity System</h3>
+              <span class="portfolio-year">2025</span>
+            </div>
+            <p class="portfolio-item-desc">Complete visual identity system, geometric logomark, typography hierarchy & design guidelines for luxury goods.</p>
+            <div class="portfolio-tags">
+              <span class="portfolio-tag">Brand Strategy</span>
+              <span class="portfolio-tag">Logomark</span>
+              <span class="portfolio-tag">Visual System</span>
+            </div>
+          </div>
+        </article>
+
+        <!-- Portfolio Card 4: E-Commerce Experience -->
+        <article class="portfolio-card reveal-on-scroll" data-category="web">
+          <div class="portfolio-img-container">
+            <span class="portfolio-category-tag">Web & E-Commerce</span>
+            <img src="/images/portfolio_ecom.jpg" alt="Aura Chronos E-Commerce" class="portfolio-img" loading="lazy" decoding="async" width="900" height="675">
+            <div class="portfolio-overlay">
+              <span class="portfolio-hover-icon">↗</span>
+            </div>
+          </div>
+          <div class="portfolio-info">
+            <div class="portfolio-header">
+              <h3 class="portfolio-item-title">Aura Chronos Experience</h3>
+              <span class="portfolio-year">2025</span>
+            </div>
+            <p class="portfolio-item-desc">Immersive e-commerce store with interactive 3D product previewing and dark aesthetic micro-interactions.</p>
+            <div class="portfolio-tags">
+              <span class="portfolio-tag">E-Commerce</span>
+              <span class="portfolio-tag">Interactive Web</span>
+              <span class="portfolio-tag">3D Product</span>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
     <!-- Capabilities & Stats Section -->
     <section class="container section" id="capabilities">
       <div class="capabilities-wrapper">
@@ -293,6 +411,9 @@
   <footer class="footer">
     <div class="container footer-content">
       <div>© 2026 N Paul. All rights reserved.</div>
+      <div class="footer-email">
+        <a href="mailto:info@nirjharpaul.com">info@nirjharpaul.com</a>
+      </div>
       <ul class="social-links">
         <li><a href="#">Twitter/X</a></li>
         <li><a href="#">LinkedIn</a></li>
